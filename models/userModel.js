@@ -1,5 +1,6 @@
-const moongoose = require('mongoose');
-const userSchema = new moongoose.Schema({
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, "Email is required"],
@@ -7,26 +8,38 @@ const userSchema = new moongoose.Schema({
         trim: true,
         lowercase: true,
     },
-    password: {
+
+    passwordHash: {
         type: String,
-        required: [true, "Password is required"],
-        minlength: [6, "Password must be at least 6 characters long"],
+        required: [true, "A password is required"],
     },
+    
     firstName: {
         type: String,
-        required: [true, "First name is required"],
         trim: true,
     },
     lastName: {
         type: String,
-        required: [true, "Last name is required"],
         trim: true,
     },
-    githubUrl: String,
-    linkedinUrl: String,
-    resumeFilePath: String,
-
+    githubUrl: {
+        type: String,
+        default: ''
+    },
+    linkedinUrl: {
+        type: String,
+        default: ''
+    },
+    resumeFilePath: {
+        type: String,
+        default: ''
+    },
+    // Added field to store parsed text from the resume for AI analysis
+    resumeText: {
+        type: String,
+        default: ''
+    },
 }, { timestamps: true });
 
-const User = moongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User;

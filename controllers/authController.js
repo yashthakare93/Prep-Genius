@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 // @route   POST /api/auth/register
 exports.register = async (req, res) => {
     try {
-        const { email, password, firstName, lastName } = req.body;
+        const { email, passwordHash, firstName, lastName } = req.body;
 
         // check if user already exists
         const userExists = await User.findOne({ email });
@@ -16,7 +16,7 @@ exports.register = async (req, res) => {
 
         // hash the password
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(passwordHash, salt);
 
         // create a new user
         const user = new User({
@@ -50,7 +50,7 @@ exports.login = async (req, res) => {
         }
 
         // check password
-        const isPasswordValid = await bcrypt.compare(password, user.hashedPassword);
+        const isPasswordValid = await bcrypt.compare(passwordHash, user.hashedPassword);
         if (!isPasswordValid) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
