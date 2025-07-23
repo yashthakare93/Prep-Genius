@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const interviewRoutes = require('./routes/interviewRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -60,6 +61,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/interview', interviewRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Handle 404 errors
 app.use((req, res, next) => {
