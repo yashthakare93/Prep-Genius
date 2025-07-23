@@ -1,26 +1,6 @@
 const InterviewSession = require('../models/interviewSessionModel');
 const { callGemini } = require('../services/geminiService');
 
-// @desc Get a detailed report of a completed interview session
-// @route GET /api/analytics/report/:sessionId
-exports.getInterviewReport = async (req, res) => {
-    try {
-        const { sessionId } = req.params;
-        const session = await InterviewSession.findOne({ _id: sessionId, userId: req.userId });
-        if (!session) {
-            return res.status(404).json({ message: 'Interview session not found.' });
-        }
-        if (session.sessionStatus !== 'completed') {
-            return res.status(404).json({ message: 'The interview session is not completed yet.' })
-        }
-        res.status(200).json(session);
-    } catch (error) {
-        console.error('Error fetching interview report:', error);
-        res.status(500).json({ message: 'Failed to fetch interview report.' });
-
-    }
-}
-
 // @desc Create a personalized growth plan based on interview performance 
 // @route GET /api/analytics/growth-plan/:sessionId
 exports.generateGrowthPlan = async (req, res) => {
@@ -47,13 +27,10 @@ exports.generateGrowthPlan = async (req, res) => {
     }
 }
 
-const InterviewSession = require('../models/interviewSessionModel');
-const { callGemini } = require('../services/geminiService');
 
-/**
- * @desc    Get a detailed report of a completed interview session
- * @route   GET /api/analytics/report/:sessionId
- */
+// @desc    Get a detailed report of a completed interview session
+//route   GET /api/analytics/report/:sessionId
+
 exports.getInterviewReport = async (req, res) => {
     try {
         const { sessionId } = req.params;

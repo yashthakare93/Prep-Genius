@@ -1,11 +1,12 @@
 const User = require('../models/userModel');
 const fs = require('fs');
+const path = require('path');
 const pdf = require('pdf-parse');
 const { route } = require('../routes/authRoutes');
 
 // @desc    Get the profile of the logged-in user
 // @route   GET /api/user/profile
-exports.getProfile = async (req, res) => {
+exports.getUserProfile = async (req, res) => {
     const { userId } = req;
     try {
         const user = await User.findById(userId).select('-passwordHash');
@@ -72,6 +73,7 @@ exports.uploadResume = async (req, res) => {
         }
         user.resumeFilePath = filepath;
         user.resumeText = data.text;
+        await user.save();
 
         res.status(200).json({
             message: 'Resume uploaded and parsed successfully',
@@ -84,3 +86,20 @@ exports.uploadResume = async (req, res) => {
         
     }
 }
+
+// @desc    Get the uploaded resume file
+// @route  GET /api/user/resume
+exports.getResume = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user || !user.resumeFilePath) {
+            return res.status(404).json({ message: 'No resume found for this user.' });
+        }
+        // Construct the absolute path and send the file
+        const absolutePath = path.resolve(user.resumeFilePath);
+        res.sendFile(absolutePath);
+
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+};
