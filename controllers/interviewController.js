@@ -15,7 +15,19 @@ exports.createInterviewSession = async (req, res) => {
         }
 
         // Generate the prep kit on the fly to get questions
-        const prompt = `Based on the user's resume and the job description, create an interview prep kit. Return a JSON object with keys: "behavioralQuestions" (an array of 5 questions) and "technicalQuestions" (an array of 5 questions).`;
+         const prompt = `
+            Your task is to generate a JSON object based on the user's resume and a job description.
+            Do not include any introductory text, explanations, or markdown formatting like \`\`\`json.
+            Your entire response must be only the raw JSON object.
+            
+            The JSON object must have two keys:
+            1. "behavioralQuestions": An array of 5-8 strings, where each string is a behavioral question.
+            2. "technicalQuestions": An array of 8-10 strings, where each string is a technical question.
+
+            Here is the data:
+            [JOB DESCRIPTION]: ${jobDescription}
+            [USER RESUME]: ${user.resumeText}
+        `;
         const geminiResponse = await callGemini(prompt);
         const prepKit = JSON.parse(geminiResponse.replace(/```json/g, '').replace(/```/g, '').trim());
 
@@ -36,3 +48,5 @@ exports.createInterviewSession = async (req, res) => {
         res.status(500).json({ message: 'Failed to create interview session.', error: error.message });
     }
 };
+
+

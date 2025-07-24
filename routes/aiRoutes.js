@@ -8,7 +8,7 @@ router.use(protect);
 
 // Define the Routes
 // @route   POST /api/ai/analyze
-router.post('/analyze', analyzeResume); 
+router.post('/analyze-resume', analyzeResume); 
 
 // @route   POST /api/ai/prepkit
 router.post('/prep-kit', generatePrepKit);

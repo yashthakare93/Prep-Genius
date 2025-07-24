@@ -47,9 +47,6 @@ io.on('connection', (socket) => {
 
 
 // --- Database Connection and Server Start ---
-console.log('--- DEBUGGING ---');
-console.log('The value of MONGO_URL is:', process.env.MONGO_URL);
-console.log('--- END DEBUGGING ---');
 
 mongoose.connect(process.env.MONGO_URL)
   .then(() => {

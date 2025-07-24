@@ -7,9 +7,13 @@ const { route } = require('../routes/authRoutes');
 // @desc    Get the profile of the logged-in user
 // @route   GET /api/user/profile
 exports.getUserProfile = async (req, res) => {
-    const { userId } = req;
+    const  userId  = req.userId;
     try {
+        console.log('--inside getUserProfile--');
+        console.log('--serching for user with userId:', userId);
         const user = await User.findById(userId).select('-passwordHash');
+        console.log('--database returned', user);
+        console.log('--end of getUserProfile--');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -57,6 +61,7 @@ exports.updateUserProfile = async (req, res) => {
 
 // @desc    Upload resume file and extract text
 // @route  POST /api/user/resume
+
 exports.uploadResume = async (req, res) => {
     if(!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
@@ -64,11 +69,12 @@ exports.uploadResume = async (req, res) => {
 
     try {
         const filepath = req.file.path;
-        const dataBuffer = fs.readFile(filepath);
+        const dataBuffer = fs.readFileSync(filepath);
         const data = await pdf(dataBuffer);
         
         const user = await User.findById(req.userId);
         if (!user) {
+            fs.unlinkSync(filepath);
             return res.status(404).json({ message: 'User not found' });
         }
         user.resumeFilePath = filepath;
@@ -83,7 +89,6 @@ exports.uploadResume = async (req, res) => {
     } catch (error) {
         console.error('Error uploading resume:', error);
         res.status(500).json({ message: 'Server error' });
-        
     }
 }
 

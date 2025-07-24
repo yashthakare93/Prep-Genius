@@ -6,7 +6,12 @@ const jwt = require('jsonwebtoken');
 // @route   POST /api/auth/register
 exports.register = async (req, res) => {
     try {
-        const { email, passwordHash, firstName, lastName } = req.body;
+        const { email, password, firstName, lastName } = req.body;
+
+        // check if password was provided
+        if (!password) {
+            return res.status(400).json({ message: 'Password is required.' });
+        }
 
         // check if user already exists
         const userExists = await User.findOne({ email });
@@ -16,21 +21,21 @@ exports.register = async (req, res) => {
 
         // hash the password
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(passwordHash, salt);
+ 
+        const passwordHash = await bcrypt.hash(password, salt);
 
         // create a new user
         const user = new User({
             email,
-            hashedPassword,
+            passwordHash: passwordHash,
             firstName,
             lastName,
-        })
+        });
         await user.save();
         res.status(201).json({
             message: 'user created successfully',
             userId: user._id,
-            email: user.email,
-        })
+        });
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(500).json({ message: 'Server error' });
@@ -41,35 +46,32 @@ exports.register = async (req, res) => {
 // @route   POST /api/auth/login
 exports.login = async (req, res) => {
     try {
-        const { email, hashedPassword } = req.body;
+        const { email, password } = req.body;
 
         // check if user exists
-        const user = await User.findOne({ emai });
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
         // check password
-        const isPasswordValid = await bcrypt.compare(passwordHash, user.hashedPassword);
+        const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
         if (!isPasswordValid) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // create JWT 
+        // create JWT
         const payload = {
-            userId: user._id,
+            userId: user._id, 
             email: user.email,
         }
-
-        // create token
+        console.log("id beign put in token ", payload.userId);
+        console.log("email beign put in token ", payload.email);
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
         res.status(200).json({
             message: 'Login successful',
             token,
-            userId: user._id,
-            email: user.email,
         });
-
 
     } catch (error) {
         console.error('Error logging in user:', error);
@@ -77,12 +79,10 @@ exports.login = async (req, res) => {
     }
 }
 
-
 // @desc    Logout user
 // @route   POST /api/auth/logout
-exports.logout = async(req,res)=>{
+exports.logout = (req, res) => { 
     try {
-        // Invalidate the token on the client side
         res.status(200).json({ message: 'User logged out successfully' });
     } catch (error) {
         console.error('Error logging out user:', error);
